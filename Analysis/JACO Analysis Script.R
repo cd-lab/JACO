@@ -1106,15 +1106,15 @@ for (wd in 1:length(wds)) {
     print(paste("Combined Sample p-value for effect of log lag on response time (good participants):", pt(-summary(modelCompressedGood)[[10]][[6]], 24)*2))
     
     #Vuong's variance and closeness tests
-    # library(nonnest2)
-    # library(merDeriv)
-    # vcl = function(obj) vcov(obj, full=TRUE)
-    # vt = vuongtest(modelLinearAll, modelCompressedAll, vc1=vcl, vc2=vcl)
-    # print(paste("Combined Sample distinguishability of linear and logarithmic scanning models in all participants p-value:", vt[[2]]))
-    # print(paste("Combined Sample relative closeness of logarithmic over linear scanning models in all participants p-value:", vt[[4]][[2]]))
-    # vt = vuongtest(modelLinearGood, modelCompressedGood, vc1=vcl, vc2=vcl)
-    # print(paste("Combined Sample distinguishability of linear and logarithmic scanning models in high performers p-value:", vt[[2]]))
-    # print(paste("Combined Sample relative closeness of logarithmic over linear scanning models in high performers p-value:", vt[[4]][[2]]))
+    library(nonnest2)
+    library(merDeriv)
+    vcl = function(obj) vcov(obj, full=TRUE)
+    vt = vuongtest(modelLinearAll, modelCompressedAll, vc1=vcl, vc2=vcl)
+    print(paste("Combined Sample distinguishability of linear and logarithmic scanning models in all participants p-value:", vt[[2]]))
+    print(paste("Combined Sample relative closeness of logarithmic over linear scanning models in all participants p-value:", vt[[4]][[2]]))
+    vt = vuongtest(modelLinearGood, modelCompressedGood, vc1=vcl, vc2=vcl)
+    print(paste("Combined Sample distinguishability of linear and logarithmic scanning models in high performers p-value:", vt[[2]]))
+    print(paste("Combined Sample relative closeness of logarithmic over linear scanning models in high performers p-value:", vt[[4]][[2]]))
 
   }
   
