@@ -207,3 +207,11 @@ for i in range(0, len(pairs)):
         possibilities.append(((pairs[i][0] + thisInfo['ET'][j]) % 15, pairs[i][0], pairs[i][1]))
     for j in range(0, len(thisInfo['LT'])):
         possibilities.append(((pairs[i][0] + thisInfo['LT'][j]) % 15, pairs[i][0], pairs[i][1]))
+        
+#allCombos by target
+allCombosByTarget = []
+for i in range(15):
+    for j in range(len(allCombos)):
+        if i in allCombos[j][1:3]:
+            if ((i-allCombos[j][0]) % 15) in [4,5,6]:
+                allCombosByTarget.append(allCombos[j])
