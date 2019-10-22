@@ -168,7 +168,7 @@ for (wd in 1:length(wds)) {
     print(paste("Combined Sample group standard deviation in Block 4:", sd(summaryData[summaryData$blockNumber == 4 & summaryData$participantNumber != 'Average',]$responseRateAnswered)))
   }
   
-  #wilcoxon rank-sum test for group performance in block 1
+  #wilcoxon signed-rank test for group performance in block 1
   wilcoxTest = wilcox.test(summaryData[summaryData$blockNumber == 1 & summaryData$participantNumber != 'Average',]$responseRateAnswered,
                            alternative='two.sided',
                            mu=0.5,
@@ -179,7 +179,7 @@ for (wd in 1:length(wds)) {
     print(paste("Combined Sample Block 1 group accuracy p-value:", wilcoxTest[[3]]))
   }
   
-  #wilcoxon rank-sum test for group performance in block 2
+  #wilcoxon signed-rank test for group performance in block 2
   wilcoxTest = wilcox.test(summaryData[summaryData$blockNumber == 2 & summaryData$participantNumber != 'Average',]$responseRateAnswered,
                            alternative='two.sided',
                            mu=0.5,
@@ -190,7 +190,7 @@ for (wd in 1:length(wds)) {
     print(paste("Combined Sample Block 2 group accuracy p-value:", wilcoxTest[[3]]))
   }
   
-  #wilcoxon rank-sum test for group performance in block 3
+  #wilcoxon signed-rank test for group performance in block 3
   wilcoxTest = wilcox.test(summaryData[summaryData$blockNumber == 3 & summaryData$participantNumber != 'Average',]$responseRateAnswered,
                            alternative='two.sided',
                            mu=0.5,
@@ -201,7 +201,7 @@ for (wd in 1:length(wds)) {
     print(paste("Combined Sample Block 3 group accuracy p-value:", wilcoxTest[[3]]))
   }
   
-  #wilcoxon rank-sum test for group performance in block 4
+  #wilcoxon signed-rank test for group performance in block 4
   wilcoxTest = wilcox.test(summaryData[summaryData$blockNumber == 4 & summaryData$participantNumber != 'Average',]$responseRateAnswered,
                            alternative='two.sided',
                            mu=0.5,
@@ -856,6 +856,91 @@ for (wd in 1:length(wds)) {
            cex=cex.leg)
     dev.off()
     
+    #prepare to plot relative recencies of targets and lures
+    targetRecencies = c()
+    lureRecencies = c()
+    participantNumbersForRecencies = c()
+    for (i in 1:nrow(performanceBlocks)) {
+      if (performanceBlocks$probe[i] == 1) {
+        participantNumberForRecency = performanceBlocks$participantNumber[i]
+        correctResponse = performanceBlocks$correctResponse[i]
+        target = ''
+        lure = ''
+        if (correctResponse == 'left') {
+          target = performanceBlocks$leftProbe[i]
+          lure = performanceBlocks$rightProbe[i]
+        } else if (correctResponse == 'right') {
+          target = performanceBlocks$rightProbe[i]
+          lure = performanceBlocks$leftProbe[i]
+        } else {
+          print('Error!')
+        }
+        targetRecency = 0
+        lureRecency = 0
+        targetFound = FALSE
+        lureFound = FALSE
+        j = 1
+        while (targetFound == FALSE || lureFound == FALSE) {
+          letter = performanceBlocks$letter[i-j]
+          if (letter == target) {
+            targetRecency = j
+            targetFound = TRUE
+          } else if (letter == lure) {
+            lureRecency = j
+            lureFound = TRUE
+          }
+          j = j + 1
+        }
+        targetRecencies = c(targetRecencies, targetRecency)
+        lureRecencies = c(lureRecencies, lureRecency)
+        participantNumbersForRecencies = c(participantNumbersForRecencies, participantNumberForRecency)
+      }
+    }
+    medianRelativeRecencies = c()
+    for (i in 1:length(allParticipantNumbers)) {
+      participantRelativeRecencies = c()
+      for (j in 1:length(participantNumbersForRecencies)) {
+        if (participantNumbersForRecencies[j] == allParticipantNumbers[i]) {
+          participantRelativeRecencies = c(participantRelativeRecencies, targetRecencies[j] - lureRecencies[j])
+        }
+      }
+      medianRelativeRecencies = c(medianRelativeRecencies, median(participantRelativeRecencies))
+    }
+    print(paste("Relative recencies of targets and lures p-value:",
+                wilcox.test(medianRelativeRecencies,
+                    paired=FALSE,
+                    mu=0,
+                    alternative="two.sided",
+                    exact=FALSE)[[3]]))
+    
+    #PLOT RELATIVE RECENCIES OF TARGETS AND LURES
+    breaks = seq(-29.5, 29.5, 1)
+    png('targetLureRecencies.png',width=12,height=6,units='in',res=500)
+    par(mai=c(boma, loma, toma, roma))
+    hist(targetRecencies-lureRecencies,
+         breaks=breaks,
+         main='Relative Recency of Probe Letters',
+         xlab='Target Recency - Lure Recency',
+         ylab='Frequency',
+         ylim=c(0, 300),
+         xlim=c(-30, 30),
+         pch=20,
+         cex=cex,
+         font.main=font.main,
+         lwd=lwd,
+         lty=1,
+         cex.main=cex.main,
+         cex.axis=cex.main,
+         cex.lab=cex.lab,
+         col='grey',
+         axes=FALSE)
+    axis(side = 1,
+         at = c(-30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30),
+         labels = c(-30, '', -20, '', -10, '', 0, '', 10, '', 20, '', 30))
+    axis(side = 2,
+         at = c(0, 50, 100, 150, 200, 250, 300))
+    dev.off()
+    
     #get median reaction times of block 4 from good participants on correct trials
     medianRTs = matrix(data=NA, nrow=5, ncol=length(goodParticipantNumbers))
     medianRTsAll = matrix(data=NA, nrow=5, ncol=length(allParticipantNumbers))
@@ -1102,8 +1187,29 @@ for (wd in 1:length(wds)) {
                                REML=FALSE)
     print(paste("Combined Sample p-value for effect of lag on response time (all participants):", pt(-summary(modelLinearAll)[[10]][[6]], 24)*2))
     print(paste("Combined Sample p-value for effect of log lag on response time (all participants):", pt(-summary(modelCompressedAll)[[10]][[6]], 24)*2))
-    print(paste("Combined Sample p-value for effect of lag on response time (good participants):", pt(-summary(modelLinearGood)[[10]][[6]], 24)*2))
-    print(paste("Combined Sample p-value for effect of log lag on response time (good participants):", pt(-summary(modelCompressedGood)[[10]][[6]], 24)*2))
+    print(paste("Combined Sample p-value for effect of lag on response time (high performers):", pt(-summary(modelLinearGood)[[10]][[6]], 7)*2))
+    print(paste("Combined Sample p-value for effect of log lag on response time (high performers):", pt(-summary(modelCompressedGood)[[10]][[6]], 7)*2))
+    
+    #calculate scanning model accounting for further probe letter
+    block4Probes$logMaximumStepsToProbe = log(block4Probes$maximumStepsToProbe)
+    modelMaxAll = lmer(reactionTime ~ logMinimumStepsToProbe + logMaximumStepsToProbe + (logMinimumStepsToProbe + logMaximumStepsToProbe||participantNumber),
+                       data=block4Probes[block4Probes$participantCorrect %in% c(1),],
+                       REML=FALSE)
+    print(paste("Combined Sample p-value for effect of just log lag to closest probe letter on response time (all participants):", pt(-summary(modelMaxAll)[[10]][[8]], 24)*2))
+    print(paste("Combined Sample p-value for effect of just log lag to furthest probe letter on response time (all participants):", pt(-summary(modelMaxAll)[[10]][[9]], 24)*2))
+    print(paste("Delta-AIC for log min model over log min and log max model:", AIC(modelCompressedAll, modelMaxAll)[2][[1]][2] - AIC(modelCompressedAll, modelMaxAll)[2][[1]][1]))
+    modelMaxGood = lmer(reactionTime ~ logMinimumStepsToProbe + logMaximumStepsToProbe + (logMinimumStepsToProbe + logMaximumStepsToProbe||participantNumber),
+                        data=block4Probes[block4Probes$participantNumber %in% goodParticipantNumbers & block4Probes$participantCorrect %in% c(1),],
+                        REML=FALSE)
+    print(paste("Combined Sample p-value for effect of just log lag to closest probe letter on response time (high performers):", pt(-summary(modelMaxGood)[[10]][[8]], 7)*2))
+    print(paste("Combined Sample p-value for effect of just log lag to furthest probe letter on response time (high performers):", pt(-summary(modelMaxGood)[[10]][[9]], 7)*2))
+    print(paste("Delta-AIC for log min model over log min and log max model:", AIC(modelCompressedGood, modelMaxGood)[2][[1]][2] - AIC(modelCompressedGood, modelMaxGood)[2][[1]][1]))
+    corTestLag = cor.test(performanceBlocksProbes$minimumStepsToProbe,
+                          performanceBlocksProbes$maximumStepsToProbe,
+                          method='spearman',
+                          exact=FALSE)
+    print(paste('Combined Sample correlation value between more imminent and less imminent probe letter:', corTestLag[[4]][[1]]))
+    print(paste('Combined Sample correlation between more imminent and less imminent probe letter p-value:', corTestLag[[3]]))
     
     #Vuong's variance and closeness tests
     library(nonnest2)
