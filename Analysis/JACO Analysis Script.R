@@ -1,4 +1,4 @@
-#for .pdf figures, replace all instances of ".pdf" with ".pdf"
+#for .pdf figures, replace all instances of ".png" with ".pdf"
 
 #BASE OPTIONS
 options(expressions=10000)
@@ -252,7 +252,7 @@ for (wd in 1:length(wds)) {
     setwd('../../Figures')
     
     #PLOT ACCURACY BY BLOCK NUMBER
-    png('accuracyByTestingBlock.pdf',width=6,height=6,units='in',res=500)
+    png('accuracyByTestingBlock.png',width=6,height=6,units='in',res=500)
     averageSummary = summaryData[summaryData$participantNumber == 'Average',]
     par(xpd=TRUE,
         mai=c(boma, loma, toma, roma))
@@ -324,7 +324,7 @@ for (wd in 1:length(wds)) {
     performanceBlocksProbes = performanceBlocks[performanceBlocks$probe == 1,]
     
     #PLOT TRAINING BLOCK ACCURACY
-    png('accuracyTraining.pdf',width=6,height=6,units='in',res=500)
+    png('accuracyTraining.png',width=6,height=6,units='in',res=500)
     par(mai=c(boma, loma, toma, roma))
     beeswarm(summaryData[summaryData$blockNumber == 1,]$responseRateAnswered,
              xlim=c(0.9, 1.1),
@@ -359,7 +359,7 @@ for (wd in 1:length(wds)) {
     }
     
     #PLOT LEARNING ACROSS TRIALS IN TRAINING BLOCK
-    png('learningTraining.pdf',width=6,height=6,units='in',res=500)
+    png('learningTraining.png',width=6,height=6,units='in',res=500)
     par(mai=c(boma, loma, toma, roma))
     plot(1:15,
          trainingPerformance,
@@ -432,7 +432,7 @@ for (wd in 1:length(wds)) {
                              'number')
     
     #PLOT LEARNING ACROSS TESTING BLOCKS
-    png('learningTesting.pdf',width=6,height=6,units='in',res=500)
+    png('learningTesting.png',width=6,height=6,units='in',res=500)
     par(mai=c(boma, loma, toma, roma))
     plot(trialIndices,
          averageTrialPerformances,
@@ -503,7 +503,7 @@ for (wd in 1:length(wds)) {
     dev.off()
     
     #PLOT SIGNAL ACROSS TESTING BLOCKS
-    png('signalTesting.pdf',width=6,height=6,units='in',res=500)
+    png('signalTesting.png',width=6,height=6,units='in',res=500)
     par(mai=c(boma, loma, toma, roma))
     plot(trialIndices,
          averageTrialPerformances,
@@ -672,7 +672,7 @@ for (wd in 1:length(wds)) {
     presentationDF$sI = presentationDF$sI/90
     
     #PLOT FIRST VS. SECOND PRESENTATION ACCURACIES BY TRIAL INDEX
-    png('presentations.pdf',width=6,height=6,units='in',res=500)
+    png('presentations.png',width=6,height=6,units='in',res=500)
     par(mai=c(boma, loma, toma, roma))#, xpd=TRUE)
     plot(trialIndices,
          averageTrialPerformancesPresentation1,
@@ -804,7 +804,7 @@ for (wd in 1:length(wds)) {
     }
     
     #PLOT PERFORMANCE BY LAG TO THE MOST RECENT JUMP
-    png("accuracyByJumpLag.pdf",width=6,height=6,units='in',res=500)
+    png("accuracyByJumpLag.png",width=6,height=6,units='in',res=500)
     par(mai=c(boma, loma, toma, roma))
     plot(performanceBlocksProbes$stepsSinceJump,
          accuracyByLag,
@@ -982,7 +982,7 @@ for (wd in 1:length(wds)) {
     block4Probes$logMinimumStepsToProbe = log(block4Probes$minimumStepsToProbe)
     
     #PLOT RESPONSE TIME DATA (HIGH PERFORMERS)
-    png('goodRTs.pdf',width=6,height=6,units='in',res=500)
+    png('goodRTs.png',width=6,height=6,units='in',res=500)
     par(mai=c(boma, loma, toma, roma))
     plot(jitter(log(rep(c(2,3,4,5,6),length(goodParticipantNumbers))), amount=0),
          c(medianRTs),
@@ -1043,7 +1043,7 @@ for (wd in 1:length(wds)) {
     dev.off()
     
     #PLOT RESPONSE TIME DATA (ALL PARTICIPANTS)
-    png('allRTs.pdf',width=6,height=6,units='in',res=500)
+    png('allRTs.png',width=6,height=6,units='in',res=500)
     par(mai=c(boma, loma, toma, roma))
     plot(jitter(log(rep(c(2,3,4,5,6),length(allParticipantNumbers))), amount=0),
          c(medianRTsAll),
